@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
-#include "country.h"
+#include "world.cpp"
 
 int main(int argc, char *argv[])
 {
-    std::cout << "that is it" << std::endl;
+    auto x = new world(10, 3);
     return 0;
 }

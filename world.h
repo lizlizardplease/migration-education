@@ -1,4 +1,5 @@
 #include "country.cpp"
+#include <fstream>
 
 class world
 {
@@ -11,6 +12,8 @@ private:
     int num_takts;  //число тактов
     int num_countries; //число стран
     void Migration();
+    void UpdateEveryMatrix();
+    void SaveInformation(std::ofstream & file);
 public:
     world(int num_countries, int num_takts);
     ~world();
