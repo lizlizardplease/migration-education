@@ -16,13 +16,13 @@ world::world(int t, int c)
         desire_matrix[i] = new double[num_countries];
         throughput_matrix[i] = new double[num_countries];
         flow_matrix[i] = new double[num_countries];
-        countries.push_back(std::move(country(i)));
-        
+        countries.emplace_back(i);
+        std::cout << countries[i].GetPopulation() << std::endl;
     }
     UpdateEveryMatrix();
     SaveInformation(output);
     for (int i = 0; i < num_takts; i++){
-       //Migration();
+        Migration();
         SaveInformation(output);
     }
     output.close();
@@ -38,12 +38,12 @@ void world::UpdateEveryMatrix(){
                 flow_matrix[i][i] = 0;
             }
             else{
-                desire_matrix[i][j] = countries[j].GetDesire() - countries[i].GetDesire();
+                desire_matrix[i][j] = countries[j].GetDesire() - countries[i].GetDesire(); //желание переехать из i в другие
                 throughput_matrix[i][j] = countries[j].GetPopulation() * 0.1;
                 if (desire_matrix[i][j] <= 0)
                     flow_matrix[i][j] = 0;
                 else
-                    flow_matrix[i][j] = std::min(countries[i].GetPopulation() * desire_matrix[i][j], throughput_matrix[i][j]);
+                    flow_matrix[i][j] = std::min(countries[i].GetPopulation() * desire_matrix[i][j], throughput_matrix[i][j]); //поток из i в другие
                     //подумать про фильтр надо будет
                     //влияние потоков п.9
             }
@@ -63,22 +63,26 @@ world::~world()
 }
 
 void world::Migration(){
+    std::cout << "ok!" << std::endl;
     for (int i = 0; i < num_countries; i++){
-        int leaving = 0;
+        std:: cout << "live " << countries[i].GetPopulation() << std::endl;
         for (int j = 0; j < num_countries; j++){
-            leaving += flow_matrix[i][j];
-            countries[i].Entry(flow_matrix[j][i], j);
+            std:: cout << "leave " << flow_matrix[i][j] << std::endl;
+            countries[j].Entry(flow_matrix[i][j], i, countries[i].Departure(flow_matrix[i][j]));
         }
-        countries[i].Departure(leaving);
     }
+    std::cout << "ok!" << std::endl;
     for (int i = 0; i < num_countries; i++){
         countries[i].StepForward(flow_matrix[i]);
     }
+    std::cout << "ok!" << std::endl;
     for (int i = 0; i < num_countries; i++){
         for (int j = 0; j < num_countries; j++)
             toler_matrix[i][j] = countries[i].GetTolerVec()[j];
     }
+    std::cout << "ok!" << std::endl;
     UpdateEveryMatrix();
+    std::cout << "cool!" << std::endl;
 }
 
 void world::SaveInformation(std::ofstream &file){
