@@ -1,9 +1,10 @@
 #include "country.h"
 
-country::country(int s)
+country::country(int s, int steps)
 {
     step = 0;
     name = s;
+    num_takts = steps;
     population = 1000000;
     n[0] = round(0.2 * population);
     n[1] = round(0.2 * population);
@@ -13,6 +14,7 @@ country::country(int s)
     res_cult = 1 - res_tech;
     tol = res_cult;
     num_countries = 3;
+    migrants = new int[steps*num_countries];
     education_levels[1] = n[1] * res_tech;
     education_levels[2] = (n[2] + n[3]) * res_tech;
     education_levels[0] = n[0] + (n[1] + n[2] + n[3]) * (1 - res_tech);
@@ -58,6 +60,12 @@ void country::Learning(double a){
     education_levels[0] -= to_uni;
     education_levels[1] += to_uni - graduated;
     education_levels[2] += graduated;
+    if (name == 2){
+        std::cout << "migrants 2 ";
+        for (int i = 0; i < 3; i++)
+            std::cout << migrants[i] << " ";
+        std::cout << std::endl;
+    }
 }
 
 void country::UpdateTolerVec(double a){
@@ -67,17 +75,18 @@ void country::UpdateTolerVec(double a){
     }
 }
 void country::UpdateInstability(double assimilationCtr, double toleranceCtr){
+    std::cout << "instability " << name << " ";
     double unassimilated = 0;
     double disliked = 0;
-    for (int i = 0; i < migrants.size(); i++){
-        if (assim[i] < assimilationCtr)
-            unassimilated += migrants[i];
+    for (int i = num_countries * step; i < num_countries * step + 3; i++){
+        if (assim[i] < assimilationCtr){
+            unassimilated += (double) migrants[i];
+        }
         if (toler_vec[i] <= toleranceCtr)
-            disliked += (1 - toler_vec[i]) * migrants[i]; 
+            disliked +=  (1 - toler_vec[i]) * (double) migrants[i]; 
     }
-    std::cout << "unass " << unassimilated << "disl " << disliked << "pop " << population << std::endl;
-    instability_ind =  (unassimilated + disliked) / population; 
-    std::cout << name << " inst " << instability_ind << std::endl;
+    instability_ind = (unassimilated + disliked) / population; 
+    std::cout << instability_ind << std::endl;
 }
 
 void country::Assimilation(){
@@ -102,8 +111,15 @@ void country::UpdateLivingStandard(double a1, double a2){
     std::cout << name << " " << living_standard << std::endl;
 }
 
-void country::Entry(int amount, int motherland,std::vector<int> demography){
-    migrants.push_back(amount);
+void country::Entry(int amount, int motherland, std::vector<int> demography){
+    migrants[step * num_countries + motherland] = amount;
+    std::cout<< "wrote migrants to " << name << "amount " << amount << "located " << step * num_countries + motherland << std::endl;
+    if (name == 2){
+        std::cout << "migrants 2 ";
+        for (int i = 0; i < 3; i++)
+            std::cout << migrants[i] << " ";
+        std::cout << std::endl;
+    }
     assim.push_back(0);
     culture_vec[motherland] += amount;
     population += amount;
@@ -117,7 +133,8 @@ std::vector<int> country::Departure(int amount){
     population -= amount;
     if (n[1] > amount){  //сначала уезжает молодежь
         n[1] -= amount;
-        return std::vector<int> {0, amount, 0, 0};
+        leaving[1] = amount;
+        return leaving;
     }
     leaving[1] = n[1];
     amount -= n[1];
@@ -146,13 +163,15 @@ std::vector<int> country::Departure(int amount){
         return leaving;
     }
 }
-void country::StepForward(double* flow){
-    DemographicChanges(0.1, 0.2, 0.3); //пока не знаю как считать то
+void country::StepForward(){
+    DemographicChanges(0.1, 0.2, 0.3); 
     Learning(0.3);
     UpdateTolerVec(0.2);
-    Assimilation();
+    if (step > 0)
+        Assimilation();
     UpdateInstability(0.3, 0.8);
     UpdateLivingStandard(1, 0.6);
+    step++;
 }
 
 

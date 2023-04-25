@@ -16,13 +16,14 @@ world::world(int t, int c)
         desire_matrix[i] = new double[num_countries];
         throughput_matrix[i] = new double[num_countries];
         flow_matrix[i] = new double[num_countries];
-        countries.emplace_back(i);
-        std::cout << countries[i].GetPopulation() << std::endl;
+        countries.emplace_back(i, c);
     }
     UpdateEveryMatrix();
     SaveInformation(output);
     for (int i = 0; i < num_takts; i++){
         Migration();
+        if (i == 1)
+            std::cout << " ";
         SaveInformation(output);
     }
     output.close();
@@ -73,7 +74,7 @@ void world::Migration(){
     }
     std::cout << "ok!" << std::endl;
     for (int i = 0; i < num_countries; i++){
-        countries[i].StepForward(flow_matrix[i]);
+        countries[i].StepForward();
     }
     std::cout << "ok!" << std::endl;
     for (int i = 0; i < num_countries; i++){
