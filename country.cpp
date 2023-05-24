@@ -36,17 +36,17 @@ country::country(int s, int steps, double rt)
     culture_vec[name] = population;
     std::cout << population << std::endl;
 }
-void country::DemographicChanges(double a, double g, double m){
-    std::cout << "demogr 1 " << population << " " << n[1] << " " << n[2] << " " << n[0] << " " << n[3] <<  std::endl;
-    int grew_up_babies = round(g * n[0]);
-    int grew_up_teens = round(n[1] * m);
-    int got_old = round(n[2] * a);
-    int new_babies = round(n[2] * b);
-    int dead_young = round(n[1] * d2);
-    int dead_adult = round(n[2] * d3);
-    int dead_old = round(n[3] * d4);
-    std:: cout << "ddd " << n[3] << " " << d4 << " " << dead_old  << std::endl;
-    education_levels[0] += new_babies; 
+void country::DemographicChanges(double a, double g, double m) {
+    std::cout << "demogr 1 " << population << " " << n[1] << " " << n[2] << " " << n[0] << " " << n[3] << std::endl;
+    int grew_up_babies = static_cast<int>(round(g * n[0]));
+    int grew_up_teens = static_cast<int>(round(n[1] * m));
+    int got_old = static_cast<int>(round(n[2] * a));
+    int new_babies = static_cast<int>(round(n[2] * b));
+    int dead_young = static_cast<int>(round(n[1] * d2));
+    int dead_adult = static_cast<int>(round(n[2] * d3));
+    int dead_old = static_cast<int>(round(n[3] * d4));
+    std:: cout << "ddd " << n[3] << " " << d4 << " " << dead_old << std::endl;
+    education_levels[0] += new_babies;
     education_levels[1] *= (1 - d2);
     education_levels[2] *= (1 - (n[3] * d4 + n[2] * d3) / (n[2] + n[3]));
     n[0] += new_babies - grew_up_babies;
@@ -55,10 +55,9 @@ void country::DemographicChanges(double a, double g, double m){
     n[3] += got_old - dead_old;
     culture_vec[name] += new_babies - dead_adult - dead_old - dead_young;
     population += new_babies - dead_adult - dead_old - dead_young;
-    //std:: cout << "pop " << population << " " << new_babies << " " << dead_adult << " " << dead_old << " " << dead_young <<  std::endl;
-    std::cout << "demogr 2 " << population << " " << n[1] << " " << n[2] << " " << n[0] << " " << n[3] <<  std::endl;
-    std::cout << n[1] << "  JJJJJ" << std::endl;
- }
+    std::cout << "demogr 2 " << population << " " << n[1] << " " << n[2] << " " << n[0] << " " << n[3] << std::endl;
+    std::cout << n[1] << " JJJJJ" << std::endl;
+}
 
 void country::Learning(double a){
     //обработать исключения по-хорошему
@@ -173,7 +172,29 @@ std::vector<int> country::Departure(int amount) {
         return leaving;
     }
 }
+
+void country::Disaster(){
+    living_standard = living_standard * 0.95;
+    for (int i = 0; i < 4; i++){
+        double deduction = 0.03 * n[i];
+        int roundedDeduction = static_cast<int>(deduction + 0.5); // Округление к ближайшему целому
+        population -= roundedDeduction;
+        n[i] -= roundedDeduction;
+    }
+    for (auto& i : migrants){
+        double deduction = 0.03 * i;
+        int roundedDeduction = static_cast<int>(deduction + 0.5); // Округление к ближайшему целому
+        population -= roundedDeduction;
+        i -= roundedDeduction;
+    }
+}
+
 void country::StepForward(){
+    if (natural_disaster){
+        Disaster();
+        step++;
+        return;
+    }
     DemographicChanges(0.1, 0.2, 0.3); 
     Learning(0.3);
     UpdateTolerVec(0.2);

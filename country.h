@@ -28,6 +28,7 @@ class country {
         void DemographicChanges(double a, double g, double m); //демографические изменения на данном такте
         void Learning(double a);  //образовательне изменения на данном такте
         void UpdateInstability(double assimilationCtr, double toleranceCtr);
+        void Disaster();
         void Assimilation(); //процесс ассимиляции на данном такте
         void UpdateLivingStandard(double a1, double a2); //(другие коефф-ты или те же?) 
         void UpdateTolerVec(double a);
@@ -39,7 +40,8 @@ class country {
         double GetDesire() {return living_standard * (1 - instability_ind);}; //!мне не нравится
         double GetMoral() {return 1 - res_tech;}
         int GetPopulation() {return population;}
-        void DisasterSent() {natural_disaster = true;}   
+        void DisasterSent() {natural_disaster = true;}  
+        void DisasterStoped() {natural_disaster = false;} 
         double* GetTolerVec(){return toler_vec;};
         int* GetDemography(){return n;}
         double GetRes_tech(){return res_tech;}
