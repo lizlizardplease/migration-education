@@ -1,6 +1,8 @@
 #include <cmath>
 #include <vector>
 #include <numeric>
+#include <stdexcept>
+#include <iostream>
 
 
 class country {
@@ -20,9 +22,8 @@ class country {
         double* culture_vec; //вектор культур
         double living_standard;
         bool natural_disaster;
-        int education_levels[3]; //число людей с разным уровнем технического образования (пока мигрантов не учитываю)
-        std::vector<int> migrants1;  //численность мигрантов из разных стран
-        int* migrants;
+        int education_levels[3]; //число людей с разным уровнем технического образования (пока мигрантов не учитываю) 
+        std::vector<int> migrants; //численность мигрантов из разных стран
         std::vector<double> assim;  //коеффициент ассимиляции мигрантов из разных стран 
         void DemographicChanges(double a, double g, double m); //демографические изменения на данном такте
         void Learning(double a);  //образовательне изменения на данном такте
@@ -31,15 +32,17 @@ class country {
         void UpdateLivingStandard(double a1, double a2); //(другие коефф-ты или те же?) 
         void UpdateTolerVec(double a);
     public:
-        country(int name, int num_takts);
-        void Entry(int amount, int motherland, std::vector<int> demography); //мигранты из страны motherland приехали
+        country(int name, int num_takts, double rt);
+        void Entry(int amount, int motherland, const std::vector<int>& demography); //мигранты из страны motherland приехали
         std::vector <int> Departure(int amount); //уезжают из страны
         void StepForward(); //такт миграции
         double GetDesire() {return living_standard * (1 - instability_ind);}; //!мне не нравится
         double GetMoral() {return 1 - res_tech;}
-        int GetPopulation() {return n[0] + n[1] + n[2] + n[3];}
+        int GetPopulation() {return population;}
         void DisasterSent() {natural_disaster = true;}   
         double* GetTolerVec(){return toler_vec;};
+        int* GetDemography(){return n;}
+        double GetRes_tech(){return res_tech;}
         ~country();
 };
 

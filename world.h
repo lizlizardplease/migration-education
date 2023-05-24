@@ -13,9 +13,9 @@ private:
     int num_countries; //число стран
     void Migration();
     void UpdateEveryMatrix();
-    void SaveInformation(std::ofstream & file);
+    void SaveInformation(std::ofstream & file, int x);
 public:
-    world(int num_countries, int num_takts);
+    world(int num_countries, int num_takts, std::string filename, double* rts);
     ~world();
 };
 
