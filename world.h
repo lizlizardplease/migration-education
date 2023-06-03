@@ -15,13 +15,13 @@ private:
     double** flow_matrix; //матрица потоков
     int num_takts;  //число тактов
     int num_countries; //число стран
-    std::unordered_map<int, int> disasterd_countries; //страны, в которых происходят природные катаклизмы
-    bool disasters;
+   // std::unordered_map<int, int> disasterd_countries; //страны, в которых происходят природные катаклизмы
+   // bool disasters;
     void Migration();
     void UpdateEveryMatrix();
-    void SaveInformation(std::ofstream & file, int x);
+    void SaveInformation(std::ofstream & file1, std::ofstream & file2, int x);
 public:
-    world(int num_countries, int num_takts, std::string filename, double* rts);
+    world(int num_countries, int num_takts, std::string filename1, std::string filename2, double* rts);
     ~world();
 };
 

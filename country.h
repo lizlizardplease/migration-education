@@ -17,9 +17,10 @@ class country {
         double instability_ind;  //индекс социальной нестабильности
         int num_countries;  
         int num_takts;
+        bool leaved;
         int name; // номер ну или название страны
         double* toler_vec;
-        double* culture_vec; //вектор культур
+        int* culture_vec; //вектор культур
         double living_standard;
         bool natural_disaster;
         int education_levels[3]; //число людей с разным уровнем технического образования (пока мигрантов не учитываю) 
@@ -28,17 +29,22 @@ class country {
         void DemographicChanges(double a, double g, double m); //демографические изменения на данном такте
         void Learning(double a);  //образовательне изменения на данном такте
         void UpdateInstability(double assimilationCtr, double toleranceCtr);
-        void Disaster();
+        //void Disaster();
         void Assimilation(); //процесс ассимиляции на данном такте
         void UpdateLivingStandard(double a1, double a2); //(другие коефф-ты или те же?) 
         void UpdateTolerVec(double a);
+        void Death();
+        void assrt();
     public:
-        country(int name, int num_takts, double rt);
-        void Entry(int amount, int motherland, const std::vector<int>& demography); //мигранты из страны motherland приехали
-        std::vector <int> Departure(int amount); //уезжают из страны
+        country(int name, int nc, int num_takts, double rt);
+        void Entry(int motherland, const std::pair<std::vector<int>, std::vector<int>> &demography); //мигранты из страны motherland приехали
+        std::pair<std::vector<int>, std::vector<int>> Departure(int amount); //уезжают из страны
         void StepForward(); //такт миграции
+        void ComeHome(int x);
         double GetDesire() {return living_standard * (1 - instability_ind);}; //!мне не нравится
-        double GetMoral() {return 1 - res_tech;}
+        double GetMoral() {return 1.0 - res_tech;}
+        double GetLivingStandard() {return living_standard;};
+        double GetInst() {return instability_ind;}
         int GetPopulation() {return population;}
         void DisasterSent() {natural_disaster = true;}  
         void DisasterStoped() {natural_disaster = false;} 
