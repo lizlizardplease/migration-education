@@ -3,6 +3,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <iostream>
+#include <array>
 
 
 class country {
@@ -10,7 +11,7 @@ class country {
         int population;
         double b, d2, d3, d4, Md23; //вектор демографии
         int step;  //текущий такт миграции
-        int n[4]; //численность групп населения
+        std::array<int, 4> n; //численность групп населения
         double tol; //коэффициент толерантности в данной стране к мигрантам в целом
         double res_tech;  //доля ресурса на техническое образование
         double res_cult; //доля ресурса на культурное образование
@@ -29,19 +30,19 @@ class country {
         void DemographicChanges(double a, double g, double m); //демографические изменения на данном такте
         void Learning(double a);  //образовательне изменения на данном такте
         void UpdateInstability(double assimilationCtr, double toleranceCtr);
-        //void Disaster();
+        void Disaster();
         void Assimilation(); //процесс ассимиляции на данном такте
-        void UpdateLivingStandard(double a1, double a2); //(другие коефф-ты или те же?) 
+        void UpdateLivingStandard(double a1); //(другие коефф-ты или те же?) 
         void UpdateTolerVec(double a);
         void Death();
         void assrt();
     public:
-        country(int name, int nc, int num_takts, double rt);
+        country (int name, int nc, int num_takts, double rt);
         void Entry(int motherland, const std::pair<std::vector<int>, std::vector<int>> &demography); //мигранты из страны motherland приехали
         std::pair<std::vector<int>, std::vector<int>> Departure(int amount); //уезжают из страны
         void StepForward(); //такт миграции
         void ComeHome(int x);
-        double GetDesire() {return living_standard * (1 - instability_ind);}; //!мне не нравится
+        double GetDesire() {return living_standard - instability_ind;}
         double GetMoral() {return 1.0 - res_tech;}
         double GetLivingStandard() {return living_standard;};
         double GetInst() {return instability_ind;}
@@ -49,8 +50,9 @@ class country {
         void DisasterSent() {natural_disaster = true;}  
         void DisasterStoped() {natural_disaster = false;} 
         double* GetTolerVec(){return toler_vec;};
-        int* GetDemography(){return n;}
+        std::array<int, 4> GetDemography(){return n;}
         double GetRes_tech(){return res_tech;}
+        int mg_debug;
         ~country();
 };
 

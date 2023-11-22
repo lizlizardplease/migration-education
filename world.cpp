@@ -6,8 +6,8 @@ world::world(int c, int t, std::string filename1, std::string filename2, double*
 {
     num_takts = t;
     num_countries = c;
-   // disasters = 0;
-    //srand(time(0));
+    disasters = 0;
+    srand(time(0));
     std::ofstream output1(filename1);
     std::ofstream output2(filename2);
     toler_matrix = new double*[num_countries];
@@ -15,7 +15,8 @@ world::world(int c, int t, std::string filename1, std::string filename2, double*
     throughput_matrix = new double*[num_countries];
     flow_matrix = new double*[num_countries];
     countries.reserve(num_countries);
-    //int random_takt = rand() % 50;
+    int random_takt = rand() % 50;
+    std::cout << random_takt << std::endl;
     for (int i = 0; i < num_countries; i++){
         toler_matrix[i] = new double[num_countries];
         desire_matrix[i] = new double[num_countries];
@@ -26,42 +27,39 @@ world::world(int c, int t, std::string filename1, std::string filename2, double*
     UpdateEveryMatrix();
     //SaveInformation(output1, output2, 0);
     for (int i = 0; i < num_takts; i++){
-    //     if (i == random_takt){
-    //         std::cout << "DISASTER" << std::endl;
-    //         int randomCountry = rand() % num_countries;
-    //         countries[randomCountry].DisasterSent();
-    //         random_takt = i + (rand() % 50);
-    //         disasters = 1;
-    //         disasterd_countries[randomCountry] = 5;
-    //     }
+        if (i == random_takt){
+            std::cout << "DISASTER" << std::endl;
+            int randomCountry = rand() % num_countries;
+            countries[randomCountry].DisasterSent();
+            random_takt = i + (rand() % 50);
+            disasters = 1;
+            disasterd_countries[randomCountry] = 5;
+        }
         std::cout << "TAKT" << i << std::endl;
         Migration();
-        if (i ==42)
-        {
-            std::cout << " ";
-        }
-        for (int i = 0; i < num_countries; i++){
-            countries[i].StepForward();
+        for (auto& country : countries){
+            country.StepForward();
         }
         UpdateEveryMatrix();
         SaveInformation(output1, output2, i + 1);
-        // if (disasters){
-        //     for(auto it = disasterd_countries.begin(); it != disasterd_countries.end(); ) {
-        //         it->second--;
-        //         if (it->second == 0){
-        //             countries[i].DisasterStoped();
-        //             it = disasterd_countries.erase(it);
-        //     } 
-        //         else {
-        //             ++it;
-        //         }
-        //     }
-        //     if (disasterd_countries.empty()) 
-        //         disasters = 0;
-        // } 
+        if (disasters){
+            for(auto it = disasterd_countries.begin(); it != disasterd_countries.end(); ) {
+                it->second--;
+                if (it->second == 0){
+                    countries[it->first].DisasterStoped();
+                    it = disasterd_countries.erase(it);
+            } 
+                else {
+                    ++it;
+                }
+            }
+            if (disasterd_countries.empty()) 
+                disasters = 0;
+        } 
     }
     output1.close();
     output2.close();
+    std::cout << "   " << random_takt << "  "; 
 }
 
 void world::UpdateEveryMatrix(){
@@ -70,23 +68,18 @@ void world::UpdateEveryMatrix(){
         for (int j = 0; j < num_countries; j++){
             if (i == j){
                 desire_matrix[i][j] = countries[i].GetDesire() + countries[i].GetMoral(); //коеффициенты
-               // std::cout << i << " " <<  j << " " <<  countries[i].GetDesire() << " " << countries[i].GetMoral() << std::endl;
                 throughput_matrix[i][i] = 0;
                 flow_matrix[i][i] = 0;
             }
             else{
                 desire_matrix[i][j] = countries[j].GetDesire() - countries[i].GetDesire(); //желание переехать из i в другие
-                    //std::cout << i << " " <<  j <<  " " << countries[i].GetDesire() << " " << countries[j].GetDesire() << std::endl;
-                throughput_matrix[i][j] = countries[j].GetPopulation() * 0.01;
-                if (desire_matrix[i][j] <= 0)
+                throughput_matrix[i][j] = countries[j].GetPopulation() * 0.001;
+                if (desire_matrix[i][j] <= 0 | (disasters && (disasterd_countries.count(i) > 0 || disasterd_countries.count(j) > 0)))
                     flow_matrix[i][j] = 0;
                 else
                     flow_matrix[i][j]= std::min(std::max(countries[i].GetPopulation() * desire_matrix[i][j], 0.0), throughput_matrix[i][j]);
-                    //подумать про фильтр надо будет
-                    //влияние потоков п.9
             }
         }
-        std::cout << std::endl;
     }
     for (int i = 0; i < num_countries; i++){
         for (int j = 0; j < num_countries; j++)
@@ -121,11 +114,7 @@ void world::Migration(){
         try{
             if (countries[i].GetPopulation() < 0)
                 throw std::logic_error("Population is less than zero....");
-            //std:: cout << "live " << countries[i].GetPopulation() << std::endl;
             for (int j = 0; j < num_countries; j++){
-               // std:: cout << "leave " << flow_matrix[i][j] << std::endl;
-                // if (disasters && (disasterd_countries.count(i) > 0 || disasterd_countries.count(j) > 0))
-                //     continue;
                 auto m = countries[i].Departure(flow_matrix[i][j]);
                 countries[j].Entry(i, m);
             }

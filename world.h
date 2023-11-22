@@ -15,8 +15,8 @@ private:
     double** flow_matrix; //матрица потоков
     int num_takts;  //число тактов
     int num_countries; //число стран
-   // std::unordered_map<int, int> disasterd_countries; //страны, в которых происходят природные катаклизмы
-   // bool disasters;
+    std::unordered_map<int, int> disasterd_countries; //страны, в которых происходят природные катаклизмы
+    bool disasters;
     void Migration();
     void UpdateEveryMatrix();
     void SaveInformation(std::ofstream & file1, std::ofstream & file2, int x);
